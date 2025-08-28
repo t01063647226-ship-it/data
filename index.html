@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>순천시 인구수 현황</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white shadow-xl rounded-2xl p-8 max-w-4xl w-full">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">순천시 인구 현황 시각화</h1>
+        <p class="text-lg text-center text-gray-600 mb-8">웹에서 찾은 최신 순천시 인구 데이터를 바탕으로 작성되었습니다.</p>
+        
+        <div class="space-y-6">
+            <!-- Latest Population Section -->
+            <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">최신 인구 수</h2>
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="text-center md:text-left mb-4 md:mb-0">
+                        <p class="text-gray-500">2025년 4월 기준</p>
+                        <p class="text-5xl font-extrabold text-blue-600 my-2" id="currentPopulation">275,563명</p>
+                    </div>
+                    <div class="bg-blue-100 rounded-lg p-4 text-center">
+                        <p class="text-sm font-medium text-gray-700">전남 지역 내 인구 1위 도시</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Population Trend Chart Section -->
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">순천시 연도별 인구 추이</h2>
+                <div class="h-80">
+                    <canvas id="populationTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Similar City Comparison Chart Section -->
+            <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">인구수 유사 도시 비교 (2025년 기준)</h2>
+                <div class="h-80">
+                    <canvas id="populationComparisonChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Population Density Chart Section -->
+            <div class="bg-teal-50 p-6 rounded-xl border border-teal-200">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">도시별 인구 밀도 비교 (명/㎢)</h2>
+                <div class="h-80">
+                    <canvas id="populationDensityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Source & Disclaimer Section -->
+            <div class="text-center text-sm text-gray-500 mt-8">
+                <p>본 데이터는 2025년 4월 기준 행정안전부 주민등록인구통계(나무위키 출처)와 기타 웹 검색 자료를 기반으로 합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 순천시 인구 추이 데이터
+            const suncheonData = {
+                labels: ['2015년', '2020년', '2024년 10월', '2025년 3월', '2025년 4월'],
+                data: [278765, 282189, 276148, 281873, 275563]
+            };
+
+            const ctxTrend = document.getElementById('populationTrendChart').getContext('2d');
+            
+            // 순천시 인구 추이 차트 생성
+            new Chart(ctxTrend, {
+                type: 'bar',
+                data: {
+                    labels: suncheonData.labels,
+                    datasets: [{
+                        label: '인구수 (명)',
+                        data: suncheonData.data,
+                        backgroundColor: [
+                            'rgba(110, 89, 235, 0.8)',
+                            'rgba(255, 140, 0, 0.8)',
+                            'rgba(255, 205, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(54, 162, 235, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(110, 89, 235, 1)',
+                            'rgba(255, 140, 0, 1)',
+                            'rgba(255, 205, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(54, 162, 235, 1)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return value.toLocaleString() + '명';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '순천시 연도별 인구 변화',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('ko-KR').format(context.parsed.y) + '명';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 인구수 유사 도시 비교 데이터 (2025년 데이터 기준)
+            // 출처: 나무위키 (2025년), Data Commons (2024년 10월)
+            const comparisonData = {
+                labels: ['순천시', '여수시', '익산시', '경주시'],
+                data: [275563, 276148, 272715, 275842]
+            };
+
+            const ctxComparison = document.getElementById('populationComparisonChart').getContext('2d');
+
+            // 유사 도시 인구 비교 차트 생성
+            new Chart(ctxComparison, {
+                type: 'bar',
+                data: {
+                    labels: comparisonData.labels,
+                    datasets: [{
+                        label: '2025년 인구수 (명)',
+                        data: comparisonData.data,
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.6)', // Suncheon
+                            'rgba(255, 99, 132, 0.6)', // Yeosu
+                            'rgba(75, 192, 192, 0.6)', // Iksan
+                            'rgba(255, 205, 86, 0.6)'  // Gyeongju
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 205, 86, 1)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return value.toLocaleString() + '명';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '인구수 유사 도시 비교 (2025년 기준)',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('ko-KR').format(context.parsed.y) + '명';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 인구 밀도 비교 데이터 (2025년 인구 / 웹 검색 기준 면적)
+            const densityData = {
+                labels: ['순천시', '여수시', '익산시', '경주시'],
+                // 면적(㎢): 순천시 907.3, 여수시 501.9, 익산시 506.7, 경주시 1324.4
+                data: [
+                    275563 / 907.3,
+                    276148 / 501.9,
+                    272715 / 506.7,
+                    275842 / 1324.4
+                ]
+            };
+            
+            const ctxDensity = document.getElementById('populationDensityChart').getContext('2d');
+
+            // 도시별 인구 밀도 차트 생성
+            new Chart(ctxDensity, {
+                type: 'bar',
+                data: {
+                    labels: densityData.labels,
+                    datasets: [{
+                        label: '인구 밀도 (명/㎢)',
+                        data: densityData.data,
+                        backgroundColor: [
+                            'rgba(60, 179, 113, 0.6)', // MediumSeaGreen
+                            'rgba(255, 140, 0, 0.6)',  // DarkOrange
+                            'rgba(100, 149, 237, 0.6)',// CornflowerBlue
+                            'rgba(218, 165, 32, 0.6)'  // GoldenRod
+                        ],
+                        borderColor: [
+                            'rgba(60, 179, 113, 1)',
+                            'rgba(255, 140, 0, 1)',
+                            'rgba(100, 149, 237, 1)',
+                            'rgba(218, 165, 32, 1)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return Math.round(value) + '명/㎢';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '도시별 인구 밀도 비교',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('ko-KR').format(Math.round(context.parsed.y)) + '명/㎢';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
