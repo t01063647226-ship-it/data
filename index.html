@@ -3,340 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>순천시 인구수 현황</title>
-    <!-- Tailwind CSS CDN -->
+    <title>대구광역시 동물병원 현황 분석</title>
+    <!-- Tailwind CSS CDN 로드 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <!-- Chart.js 라이브러리 로드 (시각화에 사용) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <!-- Inter 폰트 설정 -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+KR:wght@100..900&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #e2e8f0;
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+        .chart-container {
+            height: 300px; /* 모바일 대응을 위해 높이 고정 */
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white shadow-xl rounded-2xl p-8 max-w-4xl w-full">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">순천시 인구 현황 시각화</h1>
-        <p class="text-lg text-center text-gray-600 mb-8">웹에서 찾은 최신 순천시 인구 데이터를 바탕으로 작성되었습니다.</p>
-        
-        <div class="space-y-6">
-            <!-- Latest Population Section -->
-            <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">최신 인구 수</h2>
-                <div class="flex flex-col md:flex-row items-center justify-between">
-                    <div class="text-center md:text-left mb-4 md:mb-0">
-                        <p class="text-gray-500">2025년 4월 기준</p>
-                        <p class="text-5xl font-extrabold text-blue-600 my-2" id="currentPopulation">275,563명</p>
+<body class="p-4 md:p-8">
+
+    <!-- 메인 컨테이너 -->
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-blue-800 tracking-tight mb-2">
+                대구광역시 동물병원 현황 분석 (총 191개)
+            </h1>
+            <p class="text-lg text-gray-600">시군구별 분포 및 밀집도 시각화</p>
+        </header>
+
+        <!-- 데이터 요약 카드 섹션 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- 총 병원 수 카드 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border-b-4 border-blue-500 transition-shadow hover:shadow-2xl">
+                <p class="text-sm font-semibold text-gray-500">총 병원 수</p>
+                <p class="text-4xl font-bold text-blue-700 mt-1">191<span class="text-xl font-normal ml-1">개</span></p>
+            </div>
+            <!-- 최다 밀집 지역 카드 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border-b-4 border-green-500 transition-shadow hover:shadow-2xl">
+                <p class="text-sm font-semibold text-gray-500">최다 밀집 지역</p>
+                <p class="text-2xl font-bold text-green-700 mt-1">달서구 (45개)</p>
+                <p class="text-xs text-gray-400">전체의 23.6% 차지</p>
+            </div>
+            <!-- 최소 지역 카드 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border-b-4 border-red-500 transition-shadow hover:shadow-2xl">
+                <p class="text-sm font-semibold text-gray-500">최소 지역</p>
+                <p class="text-2xl font-bold text-red-700 mt-1">달성군 (4개)</p>
+                <p class="text-xs text-gray-400">지역별 불균형 확인</p>
+            </div>
+        </div>
+
+        <!-- 그래프 섹션 -->
+        <div class="bg-white p-6 md:p-8 rounded-xl shadow-2xl">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">시군구별 병원 수 시각화</h2>
+
+            <!-- 막대 그래프 (병원 수 비교) -->
+            <div class="mb-10">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">1. 시군구별 동물병원 수 비교 (막대 그래프)</h3>
+                <div class="chart-container">
+                    <canvas id="barChart"></canvas>
+                </div>
+                <p class="text-sm text-gray-500 mt-4 text-center">높이가 높은 구역일수록 동물병원 밀집도가 높습니다.</p>
+            </div>
+
+            <!-- 원형 그래프 (비율 분포) -->
+            <div class="mb-10">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">2. 대구 동물병원 비율 분포 (원형 그래프)</h3>
+                <div class="flex justify-center">
+                    <!-- 원형 차트는 너비를 제한하여 중앙에 배치 -->
+                    <div class="w-full md:w-2/3 chart-container">
+                        <canvas id="pieChart"></canvas>
                     </div>
-                    <div class="bg-blue-100 rounded-lg p-4 text-center">
-                        <p class="text-sm font-medium text-gray-700">전남 지역 내 인구 1위 도시</p>
-                    </div>
                 </div>
+                <p class="text-sm text-gray-500 mt-4 text-center">달서구, 수성구 두 지역이 전체의 절반 가까이를 차지합니다.</p>
             </div>
 
-            <!-- Population Trend Chart Section -->
-            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">순천시 연도별 인구 추이</h2>
-                <div class="h-80">
-                    <canvas id="populationTrendChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Similar City Comparison Chart Section -->
-            <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">인구수 유사 도시 비교 (2025년 기준)</h2>
-                <div class="h-80">
-                    <canvas id="populationComparisonChart"></canvas>
-                </div>
-            </div>
-            
-            <!-- Population Density Chart Section -->
-            <div class="bg-teal-50 p-6 rounded-xl border border-teal-200">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">도시별 인구 밀도 비교 (명/㎢)</h2>
-                <div class="h-80">
-                    <canvas id="populationDensityChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Source & Disclaimer Section -->
-            <div class="text-center text-sm text-gray-500 mt-8">
-                <p>본 데이터는 2025년 4월 기준 행정안전부 주민등록인구통계(나무위키 출처)와 기타 웹 검색 자료를 기반으로 합니다.</p>
-            </div>
+            <footer class="mt-8 pt-4 border-t text-sm text-gray-500 text-center">
+                <p>데이터 기준: 2025년 5월 22일 | 데이터 출처: 대구광역시_동물병원 현황_20250522.csv</p>
+            </footer>
         </div>
     </div>
 
+    <!-- JavaScript for Chart Generation -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 순천시 인구 추이 데이터
-            const suncheonData = {
-                labels: ['2015년', '2020년', '2024년 10월', '2025년 3월', '2025년 4월'],
-                data: [278765, 282189, 276148, 281873, 275563]
-            };
+        // 데이터
+        const data = {
+            labels: ['달서구', '수성구', '북구', '동구', '서구', '남구', '중구', '달성군'],
+            counts: [45, 44, 33, 22, 18, 15, 10, 4],
+            backgroundColors: [
+                '#3b82f6', // blue-500 (달서구 - 최다)
+                '#10b981', // emerald-500 (수성구 - 2위)
+                '#f59e0b', // amber-500 (북구)
+                '#ef4444', // red-500 (동구)
+                '#6366f1', // indigo-500 (서구)
+                '#06b6d4', // cyan-500 (남구)
+                '#a855f7', // violet-500 (중구)
+                '#9ca3af'  // gray-400 (달성군 - 최소)
+            ],
+            hoverColors: [
+                '#2563eb',
+                '#059669',
+                '#d97706',
+                '#dc2626',
+                '#4f46e5',
+                '#0891b2',
+                '#9333ea',
+                '#6b7280'
+            ]
+        };
 
-            const ctxTrend = document.getElementById('populationTrendChart').getContext('2d');
-            
-            // 순천시 인구 추이 차트 생성
-            new Chart(ctxTrend, {
-                type: 'bar',
-                data: {
-                    labels: suncheonData.labels,
-                    datasets: [{
-                        label: '인구수 (명)',
-                        data: suncheonData.data,
-                        backgroundColor: [
-                            'rgba(110, 89, 235, 0.8)',
-                            'rgba(255, 140, 0, 0.8)',
-                            'rgba(255, 205, 86, 0.8)',
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(54, 162, 235, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(110, 89, 235, 1)',
-                            'rgba(255, 140, 0, 1)',
-                            'rgba(255, 205, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(54, 162, 235, 1)'
-                        ],
-                        borderWidth: 1,
-                        borderRadius: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                callback: function(value, index, values) {
-                                    return value.toLocaleString() + '명';
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
+        // 1. 막대 그래프 (Bar Chart)
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: '동물병원 수 (개)',
+                    data: data.counts,
+                    backgroundColor: data.backgroundColors,
+                    borderColor: data.backgroundColors.map(c => c + 'AA'), // 투명도 추가
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false // 범례 숨김
                     },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
+                    title: {
+                        display: false
+                    },
+                    tooltip: {
+                        titleFont: { weight: 'bold' },
+                        bodyFont: { size: 14 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
                         title: {
                             display: true,
-                            text: '순천시 연도별 인구 변화',
-                            font: {
-                                size: 16,
-                                weight: 'bold'
-                            },
-                            padding: {
-                                top: 10,
-                                bottom: 20
-                            }
+                            text: '병원 수 (개)',
+                            font: { size: 14, weight: 'bold' }
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('ko-KR').format(context.parsed.y) + '명';
-                                    }
-                                    return label;
-                                }
-                            }
+                        ticks: {
+                            precision: 0 // 정수만 표시
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '대구광역시 시군구명',
+                            font: { size: 14, weight: 'bold' }
                         }
                     }
                 }
-            });
+            }
+        });
 
-            // 인구수 유사 도시 비교 데이터 (2025년 데이터 기준)
-            // 출처: 나무위키 (2025년), Data Commons (2024년 10월)
-            const comparisonData = {
-                labels: ['순천시', '여수시', '익산시', '경주시'],
-                data: [275563, 276148, 272715, 275842]
-            };
-
-            const ctxComparison = document.getElementById('populationComparisonChart').getContext('2d');
-
-            // 유사 도시 인구 비교 차트 생성
-            new Chart(ctxComparison, {
-                type: 'bar',
-                data: {
-                    labels: comparisonData.labels,
-                    datasets: [{
-                        label: '2025년 인구수 (명)',
-                        data: comparisonData.data,
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.6)', // Suncheon
-                            'rgba(255, 99, 132, 0.6)', // Yeosu
-                            'rgba(75, 192, 192, 0.6)', // Iksan
-                            'rgba(255, 205, 86, 0.6)'  // Gyeongju
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 205, 86, 1)'
-                        ],
-                        borderWidth: 1,
-                        borderRadius: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                callback: function(value, index, values) {
-                                    return value.toLocaleString() + '명';
+        // 2. 원형 그래프 (Pie Chart)
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.counts,
+                    backgroundColor: data.backgroundColors,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right', // 범례를 오른쪽에 배치
+                        labels: {
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
                                 }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
+                                if (context.parsed !== null) {
+                                    // 총합 계산
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const value = context.parsed;
+                                    const percentage = ((value / total) * 100).toFixed(1) + '%';
+                                    label += value + '개 (' + percentage + ')';
+                                }
+                                return label;
                             }
                         }
                     },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: true,
-                            text: '인구수 유사 도시 비교 (2025년 기준)',
-                            font: {
-                                size: 16,
-                                weight: 'bold'
-                            },
-                            padding: {
-                                top: 10,
-                                bottom: 20
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('ko-KR').format(context.parsed.y) + '명';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
+                    title: {
+                        display: false
                     }
                 }
-            });
-
-            // 인구 밀도 비교 데이터 (2025년 인구 / 웹 검색 기준 면적)
-            const densityData = {
-                labels: ['순천시', '여수시', '익산시', '경주시'],
-                // 면적(㎢): 순천시 907.3, 여수시 501.9, 익산시 506.7, 경주시 1324.4
-                data: [
-                    275563 / 907.3,
-                    276148 / 501.9,
-                    272715 / 506.7,
-                    275842 / 1324.4
-                ]
-            };
-            
-            const ctxDensity = document.getElementById('populationDensityChart').getContext('2d');
-
-            // 도시별 인구 밀도 차트 생성
-            new Chart(ctxDensity, {
-                type: 'bar',
-                data: {
-                    labels: densityData.labels,
-                    datasets: [{
-                        label: '인구 밀도 (명/㎢)',
-                        data: densityData.data,
-                        backgroundColor: [
-                            'rgba(60, 179, 113, 0.6)', // MediumSeaGreen
-                            'rgba(255, 140, 0, 0.6)',  // DarkOrange
-                            'rgba(100, 149, 237, 0.6)',// CornflowerBlue
-                            'rgba(218, 165, 32, 0.6)'  // GoldenRod
-                        ],
-                        borderColor: [
-                            'rgba(60, 179, 113, 1)',
-                            'rgba(255, 140, 0, 1)',
-                            'rgba(100, 149, 237, 1)',
-                            'rgba(218, 165, 32, 1)'
-                        ],
-                        borderWidth: 1,
-                        borderRadius: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                callback: function(value, index, values) {
-                                    return Math.round(value) + '명/㎢';
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: true,
-                            text: '도시별 인구 밀도 비교',
-                            font: {
-                                size: 16,
-                                weight: 'bold'
-                            },
-                            padding: {
-                                top: 10,
-                                bottom: 20
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('ko-KR').format(Math.round(context.parsed.y)) + '명/㎢';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            }
         });
     </script>
 </body>
